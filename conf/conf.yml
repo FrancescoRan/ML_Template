@@ -1,0 +1,111 @@
+GENERAL:
+    
+    logger_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    # dev_mode: True
+    prefix_table: "FRA_" # &prefix_table
+    date_start: "202001"
+    date_end: "202112"
+    # n_months: 6
+    drop_table_sql_file: "drop_table.sql"
+
+DATA:
+  INTERIM: 
+    folder_name: "interim"
+    mpm_betas_filename: "MPM_case_control_betas_T_nona.csv"
+    mpm_betas_cols_to_select: ['Unnamed: 0', 'cg00000029', 'cg00000108', 'cg00000109', 'cg00000165']
+  
+  PROCESSED:
+    folder_name: "processed"
+    mpm_pheno_filename: "MPM_case_control_phenotypes.csv"
+
+  EXPERIMETS:
+    mpm_betas_test_pvalue: [0.001, 0.00001, 0.00000001] # not used
+
+
+DATASET:
+  MULTIPLE_TEST:
+    test_name: "mannwhitneyu"
+    target: "outcome"
+    pval_thresholds: [1e-6, 1e-10]
+
+
+EMBEDDINGS:
+  folder_to_save_embedder: 'artifacts'
+
+  EMBEDDER:
+    method_name: 'pca' # 'lda', 'fastica', 'nmf','autoencoder', 'var_autoencoder', 'custom', None
+
+
+SCALERS:
+  scaler_type: 'standard' # 'standard', 'norm', 'robust', 'identity' -> no scaler
+  search_scaler: False # True, False
+
+
+MODELS:
+  problem_type: 'classification' # 'regression'
+  model_name: 'lgbm' # 'logistic' , 'gbm' , 'lgbm' , 'xgb' , 'linear', 'rf'
+
+
+HYPERPARAM_TUNING:
+  param_grid_model: {
+                     # 'n_estimators':[150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800], 
+                     # 'max_depth':[4, 6, 8, 10], 
+                     'max_features':[0.8], 
+                     # 'n_jobs':[-1]
+                     }
+  param_grid_embedder: {'n_components': [5, 10, 15, 20]}
+
+
+TRAINING:
+  
+  name_input_tab: "df_cg_pval_1e-10.csv"
+  in_memory_folder_input: "data/processed"
+  select_features_subset: True # False
+  artifacts_folder: 'src/artifacts'
+  vars_to_load: 
+    - sampleID
+    - outcome
+    - age
+    - gender
+    # - asbestos_exposure
+    - SNP_PC1
+    - SNP_PC2
+
+  vars_to_drop_in_train:
+    - sampleID
+    - outcome
+
+  seed: 42
+  target_var: 'outcome'
+  perc_train: 0.9
+  scaler_type: 'standard' # 'standard', 'minmax', 'norm', 'robust', 'identity' -> no scaler
+  search_scaler: False # True, False
+    
+  scoring_functions: ['f1', 'roc_auc'] # , 'f2', 'roc_auc'
+  refit_metric: 'roc_auc'
+  search_type: 'grid' # 'random' 'grid'
+  n_iter: 60 # used only in RandomizedSearchCV
+  k_fold_splits: 5
+
+
+FEATURES_IMPORTANCE:
+      feature_importance_folder: 'data/feature_importance'
+      model_name: '' # 'LGBMClassifier__v5.joblib' # 'RandomForestClassifier__v3.joblib'
+      feat_imp_type: 'permutation' # 'impurity' , 'permutation', 'shap'
+
+
+    
+    
+    
+
+    
+      
+      
+      
+     
+      
+      
+
+    
+    
+      
